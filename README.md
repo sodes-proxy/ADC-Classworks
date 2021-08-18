@@ -2,3 +2,5 @@
 Classwork from the Advanced Computer Graphics Class
 ## Classwork 04
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/Example%20Session%2004%2020210812%20-%20Mozilla%20Firefox%202021-08-14%2020-46-12.gif)
+## Classwork 05
+![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/Example%20Session%2004%2020210817%20-%20Mozilla%20Firefox%202021-08-17%2019-20-06.gif)
