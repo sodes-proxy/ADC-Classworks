@@ -44,6 +44,7 @@ function main() {
   //click derecho
   canvas.oncontextmenu = function (ev) { rightclick(ev, gl); return false; }
   body.onkeydown = function (ev) { depthchange(ev); }
+  window.addEventListener('resize',fullScreen(gl,canvas));
 }
 // makes canvas fullscreen
 function fullScreen(gl,canvas){
