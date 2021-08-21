@@ -6,3 +6,5 @@ Classwork from the Advanced Computer Graphics Class
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/Example%20Session%2004%2020210817%20-%20Mozilla%20Firefox%202021-08-17%2019-20-06.gif)
 ## Homework figures with depth
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/Example%20Homework%2004%2020210817%20-%20Mozilla%20Firefox%202021-08-18%2022-31-58.gif)
+## Rotation
+![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/rotation_example.gif)
