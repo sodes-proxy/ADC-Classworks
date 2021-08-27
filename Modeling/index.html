@@ -9,16 +9,76 @@
 </head>
 
 <body onload="main()">
-  <div class="container-md">
+  <div class="container-fluid">
     <div class="row">
-      <div class="col-sm" >Create</div>
-      <div class="col-sm">Select</div>
-      <div class="col-sm">3</div>
+      <div class="col-lg button_mode" id="create_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Create</div>
+      <div class="col-lg button_mode" id="select_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Select</div>
+      <div class="col-lg button_mode" id="delete_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Delete</div>
     </div>
   </div>
-  <canvas id="webgl" width="400" height="400">
-    Please use a browser that supports canvas
-  </canvas>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-8">
+        <canvas id="webgl" width="400" height="400">
+          Please use a browser that supports canvas
+        </canvas>
+      </div>
+      <div class="col" id="Transformations">
+        <table class="table table-condensed table-hover" style="font-size:11px">
+          <tr>
+            <th>Translation</th>
+            <th>Rotation</th>
+            <th>Scale</th>
+          </tr>
+          <tr>
+            <td>
+              <input type="text" id="translate_x" placeholder="x:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="translate_x_slider">
+            </td>
+            <td>
+              <input type="text" id="rotate_x" placeholder="x:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="rotate_x_slider">
+            </td>
+            <td>
+              <input type="text" id="scale_x" placeholder="x:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="scale_x_slider">  
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="text" id="translate_y" placeholder="y:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="translate_y_slider">
+            </td>
+            <td>
+              <input type="text" id="rotate_y" placeholder="y:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="rotate_y_slider">
+            </td>
+            <td>
+              <input type="text" id="scale_y" placeholder="y:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="scale_y_slider">  
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="text" id="translate_z" placeholder="z:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="translate_z_slider">
+            </td>
+            <td>
+              <input type="text" id="rotate_z" placeholder="z:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="rotate_z_slider">
+            </td>
+            <td>
+              <input type="text" id="scale_z" placeholder="z:">
+              <input type="range" min="1" max="100" value="50" class="slider" id="scale_z_slider">  
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    asddsadsad
+  </div>
   <script src="lib/webgl-utils.js"></script>
   <script src="lib/webgl-debug.js"></script>
   <script src="lib/cuon-utils.js"></script>
