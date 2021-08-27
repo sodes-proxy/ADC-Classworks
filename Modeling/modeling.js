@@ -16,10 +16,22 @@ var FSHADER_SOURCE = `
     gl_FragColor = v_FragColor;
   }`;
 
+var create_mode=false;
+var select_mode=false;
+var delete_mode=false;
+var gl;
+var canvas;
+var body;
+var create_button;
+var select_button;
+var delete_button;
 function main() {
-  var canvas = document.getElementById('webgl');
-  var body = document.getElementsByTagName('body')[0];
-  var gl = getWebGLContext(canvas);
+  canvas = document.getElementById('webgl');
+  body = document.getElementsByTagName('body')[0];
+  gl = getWebGLContext(canvas);
+  create_button=document.getElementById("create_mode");
+  select_button=document.getElementById("select_mode");
+  delete_button=document.getElementById("delete_mode");
 
   if (!gl) {
     console.log('Failed to get the WebGL context');
@@ -41,15 +53,55 @@ function main() {
     }
   }
   fullScreen(gl,canvas);
-  //click derecho
+
+  //mode buttons functions 
+  create_button.onclick=function(){
+    create_mode=!create_mode;
+    select_mode=false;
+    delete_mode=false;
+    select_button.style.backgroundColor='#33b5e5';
+    delete_button.style.backgroundColor='#33b5e5';
+  }
+  select_button.onclick=function(){
+    select_mode=!select_mode;
+    create_mode=false;
+    delete_mode=false;
+    create_button.style.backgroundColor='#33b5e5';
+    delete_button.style.backgroundColor='#33b5e5';
+  }
+  delete_button.onclick=function(){
+    delete_mode=!delete_mode;
+    create_mode=false;
+    select_mode=false;
+    create_button.style.backgroundColor='#33b5e5';
+    select_button.style.backgroundColor='#33b5e5';
+  }
+  
   canvas.oncontextmenu = function (ev) { rightclick(ev, gl); return false; }
   body.onkeydown = function (ev) { depthchange(ev); }
-  window.addEventListener('resize',fullScreen(gl,canvas));
+  //window.addEventListener('resize',fullScreen(gl,canvas));
+  requestAnimationFrame(update, canvas);
+}
+
+function update(){
+  if(create_mode){
+    create_button.style.backgroundColor='green';
+  }
+  else if(select_mode){
+    select_button.style.backgroundColor='green';
+  }
+  else if(delete_mode){
+    delete_button.style.backgroundColor='green';
+  }
+  draw(gl);
+  requestAnimationFrame(update, canvas);
 }
 // makes canvas fullscreen
 function fullScreen(gl,canvas){
-  canvas.width=window.innerWidth;
-  canvas.height=window.innerHeight;
+  canvas.style.width ='100%';
+  canvas.style.height='100%';
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
   gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
   gl.clearColor(0.0,0.0,0.0,1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -150,7 +202,6 @@ function rightclick(ev, gl) {
   if (g_points[index]) {
     index++;
   }
-  angle += 10.0;
   draw(gl);
 }
 function depthchange(ev) {
