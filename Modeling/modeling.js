@@ -1,19 +1,20 @@
-var VSHADER_SOURCE = `
+var VSHADER_SOURCE =`
   attribute vec4 a_Position;
   attribute vec4 a_Color;
-  varying vec4 v_FragColor;
-  uniform mat4 u_TransformMatrix;
+  varying vec4 u_FragColor;
+  uniform mat4 u_ModelMatrix;
+  uniform mat4 u_ViewMatrix;
+  uniform mat4 u_ProjMatrix;
   void main() {
-    gl_Position = u_TransformMatrix*a_Position;
-    v_FragColor=a_Color;
-    gl_PointSize = 10.0;
+   gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
+   u_FragColor = a_Color;
   }`;
 
-var FSHADER_SOURCE = `
+var FSHADER_SOURCE =`
   precision mediump float;
-  varying vec4 v_FragColor;
+  varying vec4 u_FragColor;
   void main(){
-    gl_FragColor = v_FragColor;
+    gl_FragColor = u_FragColor;
   }`;
 
 var create_mode=false;
@@ -25,6 +26,7 @@ var body;
 var create_button;
 var select_button;
 var delete_button;
+var console_area=document.getElementById("console");
 function main() {
   canvas = document.getElementById('webgl');
   body = document.getElementsByTagName('body')[0];
@@ -109,50 +111,40 @@ function fullScreen(gl,canvas){
 }
 function initVertexBuffer(gl, vertices, colores) {
   var n = vertices.length;
-  //creamos buffer
   var vertexBuffer = gl.createBuffer();
-  //crear relacion del buffer con el array buffer (crear puente)
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-  //Mandar datos al vertexBuffer con array buffer, DYNAMIC_DRAW es arreglo dinamico, DYNAMIC_DRAW es una pista para que el gpu sea eficiente
   gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
-  //apuntador
+
   var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
   if (a_Position < 0) {
     console.log('Failed to get location of a_Position');
     return;
   }
-  //apuntador de vertices 2 es step
   gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
-  //se conecta con un arreglo
   gl.enableVertexAttribArray(a_Position);
+  var modelMatrix = new Matrix4();
+  modelMatrix.setScale(scaleAxis[0],scaleAxis[1],scaleAxis[2]);
+  modelMatrix.translate(transAxis[0],transAxis[1],transAxis[2]);
+  modelMatrix.rotate(angle, rotAxis[0], rotAxis[1], rotAxis[2]);
+  var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+  if(!u_ModelMatrix){ console.log('Failed to get location of u_ModelMatrix'); return;  }
+  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 
-  //Translation
-  /*var transformMatrix = new Float32Array([
-    1.0, 0.0, 0.0, 0.5,
-    0.0, 1.0, 0.0, -0.2,
-    0.0, 0.0, 1.0, 0.0,
-    0.0, 0.0, 0.0, 1.0
-  ]);*/
-  var radian = angle * Math.PI / 180.0;
-  var cosB = Math.cos(radian);
-  var sinB = Math.sin(radian);
-  var transformMatrix = new Float32Array([
-    cosB, -sinB, 0.0, 0.0,
-    sinB, cosB, 0.0, 0.0,
-    0.0, 0.0, 1.0, 0.0,
-    0.0, 0.0, 0.0, 1.0
-  ]);
-  var u_TransformMatrix = gl.getUniformLocation(gl.program, 'u_TransformMatrix');
-  if (!u_TransformMatrix) { console.log('Failed to get location of u_TransformMatrix'); }
-  gl.uniformMatrix4fv(u_TransformMatrix, false, transformMatrix);
-  //quita la conexion para usarla despues
+  var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+  if(!u_ViewMatrix){ console.log('Failed to get location of u_ViewMatrix'); return;  }
+  var viewMatrix = new Matrix4();
+  viewMatrix.setLookAt(0.0, 0.0, 1.5, 0.0,0.0,0.0, 0.0,1.0,0.0);
+  gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
+
+  var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
+  if(!u_ProjMatrix){ console.log('Failed to get location of u_ProjMatrix'); return;  }
+  var projMatrix = new Matrix4();
+  projMatrix.setPerspective(60.0, 1.0, 0.1, 5.0);
+  gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
   var colorBuffer = gl.createBuffer();
-  //crear relacion del buffer con el array buffer (crear puente)
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  //Mandar datos al vertexBuffer con array buffer, DYNAMIC_DRAW es arreglo dinamico, DYNAMIC_DRAW es una pista para que el gpu sea eficiente
   gl.bufferData(gl.ARRAY_BUFFER, colores, gl.DYNAMIC_DRAW);
-  //apuntador de varible de color
   var a_Color = gl.getAttribLocation(gl.program, 'a_Color');
   if (a_Color < 0) {
     console.log('Failed to get location of u_FragColor');
@@ -163,8 +155,12 @@ function initVertexBuffer(gl, vertices, colores) {
   return n;
 }
 
+var models=[];
 var g_points = [];
 var g_colors = [];
+var rotAxis = [1,0,0];
+var transAxis = [0,0,0];
+var scaleAxis = [1,1,1];
 var colores=[[1,0,0],[0,1,0],[0,0,1]];
 var index = 0;
 var z = 0;
@@ -194,19 +190,17 @@ function click(ev, gl, canvas) {
     draw(gl);
   }
   else if(select_mode){
-    var points=uiUtils.pixelInputToCanvasCoord(ev,canvas);
-    const data=new Uint8Array(4);
-    gl.readPixels(points.x, points.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
-    x = points.x / gl.canvas.width  *  2 - 1;
-    y = points.y / gl.canvas.height * -2 + 1;
-    searchSurface(x,y);
+    var selected=null;
+    for (var i = 0; i < g_points.length; i++) {
+      if(isInside(g_points[i][0],g_points[i][1],g_points[i][3],g_points[i][4],g_points[i][6],g_points[i][7],x,y)){
+        selected=i;
+      }
+      if(selected!=null){
+        console_area.value+="Selected Figure: "+selected+"\n";
+      }
+    }
   }
   else if(delete_mode){
-    var points=uiUtils.pixelInputToCanvasCoord(ev,canvas);
-    const data=new Uint8Array(4);
-    gl.readPixels(points.x, points.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
-    x = points.x / gl.canvas.width  *  2 - 1;
-    y = points.y / gl.canvas.height * -2 + 1;
     var selected=null;
     for (var i = 0; i < g_points.length; i++) {
       if(isInside(g_points[i][0],g_points[i][1],g_points[i][3],g_points[i][4],g_points[i][6],g_points[i][7],x,y)){
@@ -244,6 +238,7 @@ function rightclick(ev, gl) {
 }
 function depthchange(ev) {
   if (ev.key == "Shift") {
+    console.log(models);
     z = 1;
   }
   else if (ev.key == "Control") {
@@ -258,5 +253,46 @@ function isInside(x1, y1, x2, y2, x3, y3, x, y)
   var dot3 = (y1 - y3)*(x - x3) + (-x1 + x3)*(y - y3);
   return (dot1>=0 && dot2>=0 && dot3>=0);
 }
-function searchSurface(x,y){
+function setValue(slider){
+  var transformation=slider.id.split("_");
+  var x =document.getElementById(transformation[0]+"_"+transformation[1]);
+  if(transformation[0]=="translate" && transformation[1]=="x"){
+    x.value=slider.value;
+    transAxis[0]=x.value/100;
+  }
+  if(transformation[0]=="translate" && transformation[1]=="y"){
+    x.value=slider.value;
+    transAxis[1]=x.value/100;
+  }
+  if(transformation[0]=="translate" && transformation[1]=="z"){
+    x.value=slider.value;
+    transAxis[2]=x.value/100;
+  }
+  if(transformation[0]=="rotate" && transformation[1]=="x"){
+    x.value=slider.value;
+    rotAxis=[1,0,0];
+    angle=x.value;
+  }
+  if(transformation[0]=="rotate" && transformation[1]=="y"){
+    x.value=slider.value;
+    rotAxis=[0,1,0];
+    angle=x.value;
+  }
+  if(transformation[0]=="rotate" && transformation[1]=="z"){
+    x.value=slider.value;
+    rotAxis=[0,0,1];
+    angle=x.value;
+  }
+  if(transformation[0]=="scale" && transformation[1]=="x"){
+    x.value=slider.value;
+    scaleAxis[0]=x.value/100;
+  }
+  if(transformation[0]=="scale" && transformation[1]=="y"){
+    x.value=slider.value;
+    scaleAxis[1]=x.value/100;
+  }
+  if(transformation[0]=="scale" && transformation[1]=="z"){
+    x.value=slider.value;
+    scaleAxis[2]=x.value/100;
+  }
 }
