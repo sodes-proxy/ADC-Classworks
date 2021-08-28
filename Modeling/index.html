@@ -33,43 +33,43 @@
           <tr>
             <td>
               <input type="text" id="translate_x" placeholder="x:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="translate_x_slider">
+              <input type="range" min="1" max="100" value="50" class="slider" id="translate_x_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
               <input type="text" id="rotate_x" placeholder="x:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="rotate_x_slider">
+              <input type="range" min="0" max="360" value="50" class="slider" id="rotate_x_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
               <input type="text" id="scale_x" placeholder="x:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="scale_x_slider">  
+              <input type="range" min="1" max="100" value="50" class="slider" id="scale_x_slider" oninput="setValue(this)" onchange="setValue(this)">  
             </td>
           </tr>
           <tr>
             <td>
               <input type="text" id="translate_y" placeholder="y:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="translate_y_slider">
+              <input type="range" min="1" max="100" value="50" class="slider" id="translate_y_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
               <input type="text" id="rotate_y" placeholder="y:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="rotate_y_slider">
+              <input type="range" min="0" max="360" value="50" class="slider" id="rotate_y_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
               <input type="text" id="scale_y" placeholder="y:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="scale_y_slider">  
+              <input type="range" min="1" max="100" value="50" class="slider" id="scale_y_slider" oninput="setValue(this)" onchange="setValue(this)">  
             </td>
           </tr>
           <tr>
             <td>
               <input type="text" id="translate_z" placeholder="z:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="translate_z_slider">
+              <input type="range" min="1" max="100" value="50" class="slider" id="translate_z_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
               <input type="text" id="rotate_z" placeholder="z:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="rotate_z_slider">
+              <input type="range" min="0" max="360" value="50" class="slider" id="rotate_z_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
               <input type="text" id="scale_z" placeholder="z:">
-              <input type="range" min="1" max="100" value="50" class="slider" id="scale_z_slider">  
+              <input type="range" min="1" max="100" value="50" class="slider" id="scale_z_slider" oninput="setValue(this)" onchange="setValue(this)">   
             </td>
           </tr>
         </table>
@@ -77,11 +77,14 @@
     </div>
   </div>
   <div class="container-fluid">
-    asddsadsad
+    <div class="row">
+      <textarea name="" id="console" style="overflow:auto;resize:none" readonly></textarea>
+    </div>
   </div>
   <script src="lib/webgl-utils.js"></script>
   <script src="lib/webgl-debug.js"></script>
   <script src="lib/cuon-utils.js"></script>
+  <script src="lib/cuon-matrix.js"> </script>
   <script src="lib/uiUtils.js"></script>
   <script src="modeling.js"></script>
 </body>
