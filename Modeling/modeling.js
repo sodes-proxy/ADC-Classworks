@@ -28,7 +28,7 @@ var delete_button;
 function main() {
   canvas = document.getElementById('webgl');
   body = document.getElementsByTagName('body')[0];
-  gl = getWebGLContext(canvas);
+  gl = getWebGLContext(canvas,{preserveDrawingBuffer: true});
   create_button=document.getElementById("create_mode");
   select_button=document.getElementById("select_mode");
   delete_button=document.getElementById("delete_mode");
@@ -165,6 +165,7 @@ function initVertexBuffer(gl, vertices, colores) {
 
 var g_points = [];
 var g_colors = [];
+var colores=[[1,0,0],[0,1,0],[0,0,1]];
 var index = 0;
 var z = 0;
 var angle = 0.0;
@@ -175,21 +176,58 @@ function click(ev, gl, canvas) {
   //arreglar posicion webgl empieza en el centro, las pagins web de top left
   x = ((x - rect.left) - canvas.width / 2) / (canvas.width / 2);
   y = (canvas.height / 2 - (y - rect.top)) / (canvas.height / 2);
-  if (g_points.length <= index) {
-    var arrayPoints = [];
-    g_points.push(arrayPoints);
-    var arrayColors = [];
-    g_colors.push(arrayColors);
+  if(create_mode){
+    if (g_points.length <= index) {
+      var arrayPoints = [];
+      g_points.push(arrayPoints);
+      var arrayColors = [];
+      g_colors.push(arrayColors);
+    }
+    g_points[index].push(x);
+    g_points[index].push(y);
+    g_points[index].push(z);
+  
+    g_colors[index].push(colores[index][0]);
+    g_colors[index].push(colores[index][1]);
+    g_colors[index].push(colores[index][2]);
+  
+    draw(gl);
   }
-  g_points[index].push(x);
-  g_points[index].push(y);
-  g_points[index].push(z);
-
-  g_colors[index].push(Math.random());
-  g_colors[index].push(Math.random());
-  g_colors[index].push(Math.random());
-
-  draw(gl);
+  else if(select_mode){
+    var points=uiUtils.pixelInputToCanvasCoord(ev,canvas);
+    const data=new Uint8Array(4);
+    gl.readPixels(points.x, points.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    x = points.x / gl.canvas.width  *  2 - 1;
+    y = points.y / gl.canvas.height * -2 + 1;
+    searchSurface(x,y);
+  }
+  else if(delete_mode){
+    var points=uiUtils.pixelInputToCanvasCoord(ev,canvas);
+    const data=new Uint8Array(4);
+    gl.readPixels(points.x, points.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    x = points.x / gl.canvas.width  *  2 - 1;
+    y = points.y / gl.canvas.height * -2 + 1;
+    var selected=null;
+    for (var i = 0; i < g_points.length; i++) {
+      if(isInside(g_points[i][0],g_points[i][1],g_points[i][3],g_points[i][4],g_points[i][6],g_points[i][7],x,y)){
+        console.log("está dentro en i:",i);
+        selected=i;
+      }
+    }
+    if(selected!=null && g_points.length>1){
+      g_points.splice(selected,1);
+      index--;
+      console.log(g_points);
+      selected=null;
+    }
+    if(selected!=null && g_points.length==1){
+      console.log("entró a esto");
+      g_points.pop();
+      index--;
+      console.log(g_points);
+    }
+    //draw(gl);
+  }
 }
 function draw(gl) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -211,4 +249,14 @@ function depthchange(ev) {
   else if (ev.key == "Control") {
     z = -1;
   }
+}
+
+function isInside(x1, y1, x2, y2, x3, y3, x, y)
+{
+  var dot1 = (y2 - y1)*(x - x1) + (-x2 + x1)*(y - y1);
+  var dot2  = (y3 - y2)*(x - x2) + (-x3 + x2)*(y - y2);
+  var dot3 = (y1 - y3)*(x - x3) + (-x1 + x3)*(y - y3);
+  return (dot1>=0 && dot2>=0 && dot3>=0);
+}
+function searchSurface(x,y){
 }
