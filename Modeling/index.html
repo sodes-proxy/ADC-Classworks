@@ -11,6 +11,7 @@
 <body onload="main()">
   <div class="container-fluid">
     <div class="row">
+      <div class="col-lg button_mode" id="camera_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Camera</div>
       <div class="col-lg button_mode" id="create_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Create</div>
       <div class="col-lg button_mode" id="select_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Select</div>
       <div class="col-lg button_mode" id="delete_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Delete</div>
@@ -19,11 +20,11 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-8">
-        <canvas id="webgl" width="400" height="400">
+        <canvas id="webgl" width="400" height="520">
           Please use a browser that supports canvas
         </canvas>
       </div>
-      <div class="col" id="Transformations">
+      <div class="col" id="Transformations" style="display: none;">
         <table class="table table-condensed table-hover" style="font-size:11px">
           <tr>
             <th>Translation</th>
@@ -72,13 +73,41 @@
               <input type="range" min="1" max="100" value="50" class="slider" id="scale_z_slider" oninput="setValue(this)" onchange="setValue(this)">   
             </td>
           </tr>
+          <tr>
+            <td></td>
+            <th>Color</th>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <input type="color" id="surface_color" value="#ff0000" onchange="hexToRgb(this.value);">
+            </td>
+            <td></td>
+          </tr>
+        </table>
+      </div>
+      <div class="col" id="Creation" style="display: none;">
+        <table class="table table-condensed table-hover" style="font-size:11px">
+          <tr>
+            <td></td>
+            <th>Color</th>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <input type="color" id="surface_color" value="#ff0000" onchange="hexToRgb(this.value);">
+            </td>
+            <td></td>
+          </tr>
         </table>
       </div>
     </div>
   </div>
   <div class="container-fluid">
     <div class="row">
-      <textarea name="" id="console" style="overflow:auto;resize:none" readonly></textarea>
+      <textarea name="" id="console" style="overflow:none;resize:none" rows="3" readonly></textarea>
     </div>
   </div>
   <script src="lib/webgl-utils.js"></script>
