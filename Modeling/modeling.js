@@ -1,18 +1,16 @@
 var VSHADER_SOURCE =`
   attribute vec4 a_Position;
   attribute vec4 a_Color;
-  varying vec4 u_FragColor;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_ViewMatrix;
   uniform mat4 u_ProjMatrix;
   void main() {
    gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
-   u_FragColor = a_Color;
   }`;
 
 var FSHADER_SOURCE =`
   precision mediump float;
-  varying vec4 u_FragColor;
+  uniform vec4 u_FragColor;
   void main(){
     gl_FragColor = u_FragColor;
   }`;
@@ -64,6 +62,10 @@ function main() {
     delete_mode=false;
     select_button.style.backgroundColor='#33b5e5';
     delete_button.style.backgroundColor='#33b5e5';
+    document.getElementById("Creation").style.display="inline";
+    document.getElementById("Transformations").style.display="None";
+    var color=document.getElementById("surface_color").value;
+    hexToRgb(color);
   }
   select_button.onclick=function(){
     select_mode=!select_mode;
@@ -71,6 +73,8 @@ function main() {
     delete_mode=false;
     create_button.style.backgroundColor='#33b5e5';
     delete_button.style.backgroundColor='#33b5e5';
+    document.getElementById("Transformations").style.display="inline";
+    document.getElementById("Creation").style.display="None";
   }
   delete_button.onclick=function(){
     delete_mode=!delete_mode;
@@ -78,6 +82,8 @@ function main() {
     select_mode=false;
     create_button.style.backgroundColor='#33b5e5';
     select_button.style.backgroundColor='#33b5e5';
+    document.getElementById("Transformations").style.display="none";
+    document.getElementById("Creation").style.display="None";
   }
   
   canvas.oncontextmenu = function (ev) { rightclick(ev, gl); return false; }
@@ -96,6 +102,9 @@ function update(){
   else if(delete_mode){
     delete_button.style.backgroundColor='green';
   }
+  if( console_area.value.split(/\r\n|\r|\n/).length>4){
+    console_area.value="";
+  }
   draw(gl);
   requestAnimationFrame(update, canvas);
 }
@@ -110,7 +119,7 @@ function fullScreen(gl,canvas){
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.drawArrays(gl.POINTS,0,1);
 }
-function initVertexBuffer(gl, vertices, colores,index) {
+function initVertexBuffer(gl, vertices,index) {
   var n = vertices.length;
   var vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -144,25 +153,20 @@ function initVertexBuffer(gl, vertices, colores,index) {
   var projMatrix = new Matrix4();
   projMatrix.setPerspective(60.0, 1.0, 0.1, 5.0);
   gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
-  gl.bindBuffer(gl.ARRAY_BUFFER, null);
-  var colorBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, colores, gl.DYNAMIC_DRAW);
-  var a_Color = gl.getAttribLocation(gl.program, 'a_Color');
-  if (a_Color < 0) {
-    console.log('Failed to get location of u_FragColor');
+
+  var u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
+  if (!u_FragColor) {
+    console.log('Failed to get the storage location of u_FragColor');
     return;
   }
-  gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(a_Color);
+  gl.uniform4f(u_FragColor, g_colors[index][0], g_colors[index][1],g_colors[index][2], 1);
   return n;
 }
-
+var currentColor=[];
 var g_points = [];
 var g_colors = [];
 var transAxis = [];
 var scaleAxis = [];
-var colores=[[1,0,0],[0,1,0],[0,0,1]];
 var index = 0;
 var z = 0;
 var angles = [];
@@ -189,9 +193,9 @@ function click(ev, gl, canvas) {
     g_points[index].push(y);
     g_points[index].push(z);
   
-    g_colors[index].push(colores[index][0]);
-    g_colors[index].push(colores[index][1]);
-    g_colors[index].push(colores[index][2]);
+    g_colors[index].push(currentColor[0]);
+    g_colors[index].push(currentColor[1]);
+    g_colors[index].push(currentColor[2]);
 
     transAxis[index].push(0);
     transAxis[index].push(0);
@@ -214,28 +218,30 @@ function click(ev, gl, canvas) {
       }
     }
     if(selected!=null){
+      g_colors[selected]=currentColor;
       console_area.value+="Selected Figure: "+selected+"\n";
+    }
+    else{
+      console_area.value+="You are no longer selecting a figure\n";
     }
   }
   else if(delete_mode){
     selected=null;
     for (var i = 0; i < g_points.length; i++) {
       if(isInside(g_points[i][0],g_points[i][1],g_points[i][3],g_points[i][4],g_points[i][6],g_points[i][7],x,y)){
-        console.log("está dentro en i:",i);
         selected=i;
       }
     }
     if(selected!=null && g_points.length>1){
       g_points.splice(selected,1);
       index--;
-      console.log(g_points);
+      console_area.value+="Deleted Figure: "+selected+"\n";
       selected=null;
     }
     if(selected!=null && g_points.length==1){
-      console.log("entró a esto");
       g_points.pop();
-      index--;
-      console.log(g_points);
+      index=0;
+      console_area.value+="Deleted Figure: "+selected+"\n";
     }
     //draw(gl);
   }
@@ -243,19 +249,19 @@ function click(ev, gl, canvas) {
 function draw(gl) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   for (var i = 0; i < g_points.length; i++) {
-    var n = initVertexBuffer(gl, new Float32Array(g_points[i]), new Float32Array(g_colors[i]),i) / 3;
+    var n = initVertexBuffer(gl, new Float32Array(g_points[i]),i) / 3;
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
   }
 }
 function rightclick(ev, gl) {
   if (g_points[index] && scaleAxis[index] && transAxis[index] && angles[index]) {
     index++;
+    console_area.value+="new surface\n";
   }
   draw(gl);
 }
 function depthchange(ev) {
   if (ev.key == "Shift") {
-    console.log(transAxis,scaleAxis,angles);
     z = 1;
   }
   else if (ev.key == "Control") {
@@ -309,4 +315,14 @@ function setValue(slider){
     x.value=slider.value;
     scaleAxis[selected][2]=x.value/100;
   }
+}
+/*extracted from https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+*/
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  var red=parseInt(result[1], 16)/255.0;
+  var green=parseInt(result[2], 16)/255.0;
+  var blue=parseInt(result[3], 16)/255.0;
+  currentColor=[red,green,blue];
+  console_area.value+="["+currentColor+"] rgb selected\n";
 }
