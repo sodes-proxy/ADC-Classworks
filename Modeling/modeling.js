@@ -26,6 +26,7 @@ var body;
 var create_button;
 var select_button;
 var delete_button;
+var selected;
 var console_area=document.getElementById("console");
 function main() {
   canvas = document.getElementById('webgl');
@@ -81,7 +82,7 @@ function main() {
   
   canvas.oncontextmenu = function (ev) { rightclick(ev, gl); return false; }
   body.onkeydown = function (ev) { depthchange(ev); }
-  //window.addEventListener('resize',fullScreen(gl,canvas));
+  window.addEventListener('resize',fullScreen(gl,canvas));
   requestAnimationFrame(update, canvas);
 }
 
@@ -109,7 +110,7 @@ function fullScreen(gl,canvas){
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.drawArrays(gl.POINTS,0,1);
 }
-function initVertexBuffer(gl, vertices, colores) {
+function initVertexBuffer(gl, vertices, colores,index) {
   var n = vertices.length;
   var vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -123,9 +124,11 @@ function initVertexBuffer(gl, vertices, colores) {
   gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(a_Position);
   var modelMatrix = new Matrix4();
-  modelMatrix.setScale(scaleAxis[0],scaleAxis[1],scaleAxis[2]);
-  modelMatrix.translate(transAxis[0],transAxis[1],transAxis[2]);
-  modelMatrix.rotate(angle, rotAxis[0], rotAxis[1], rotAxis[2]);
+  modelMatrix.setScale(scaleAxis[index][0],scaleAxis[index][1],scaleAxis[index][2]);
+  modelMatrix.translate(transAxis[index][0],transAxis[index][1],transAxis[index][2]);
+  modelMatrix.rotate(angles[index][0], 1, 0,0);
+  modelMatrix.rotate(angles[index][1], 0, 1,0);
+  modelMatrix.rotate(angles[index][2], 0, 0,1);
   var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
   if(!u_ModelMatrix){ console.log('Failed to get location of u_ModelMatrix'); return;  }
   gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
@@ -155,21 +158,18 @@ function initVertexBuffer(gl, vertices, colores) {
   return n;
 }
 
-var models=[];
 var g_points = [];
 var g_colors = [];
-var rotAxis = [1,0,0];
-var transAxis = [0,0,0];
-var scaleAxis = [1,1,1];
+var transAxis = [];
+var scaleAxis = [];
 var colores=[[1,0,0],[0,1,0],[0,0,1]];
 var index = 0;
 var z = 0;
-var angle = 0.0;
+var angles = [];
 function click(ev, gl, canvas) {
   var x = ev.clientX;
   var y = ev.clientY;
   var rect = ev.target.getBoundingClientRect();
-  //arreglar posicion webgl empieza en el centro, las pagins web de top left
   x = ((x - rect.left) - canvas.width / 2) / (canvas.width / 2);
   y = (canvas.height / 2 - (y - rect.top)) / (canvas.height / 2);
   if(create_mode){
@@ -178,6 +178,12 @@ function click(ev, gl, canvas) {
       g_points.push(arrayPoints);
       var arrayColors = [];
       g_colors.push(arrayColors);
+      var arrayTranslations = [];
+      transAxis.push(arrayTranslations);
+      var arrayScales = [];
+      scaleAxis.push(arrayScales);
+      var arrayAngles = [];
+      angles.push(arrayAngles);
     }
     g_points[index].push(x);
     g_points[index].push(y);
@@ -186,22 +192,33 @@ function click(ev, gl, canvas) {
     g_colors[index].push(colores[index][0]);
     g_colors[index].push(colores[index][1]);
     g_colors[index].push(colores[index][2]);
-  
+
+    transAxis[index].push(0);
+    transAxis[index].push(0);
+    transAxis[index].push(0);
+
+    scaleAxis[index].push(1);
+    scaleAxis[index].push(1);
+    scaleAxis[index].push(1);
+
+    angles[index].push(0.0);
+    angles[index].push(0.0);
+    angles[index].push(0.0);
     draw(gl);
   }
   else if(select_mode){
-    var selected=null;
+    selected=null;
     for (var i = 0; i < g_points.length; i++) {
       if(isInside(g_points[i][0],g_points[i][1],g_points[i][3],g_points[i][4],g_points[i][6],g_points[i][7],x,y)){
         selected=i;
       }
-      if(selected!=null){
-        console_area.value+="Selected Figure: "+selected+"\n";
-      }
+    }
+    if(selected!=null){
+      console_area.value+="Selected Figure: "+selected+"\n";
     }
   }
   else if(delete_mode){
-    var selected=null;
+    selected=null;
     for (var i = 0; i < g_points.length; i++) {
       if(isInside(g_points[i][0],g_points[i][1],g_points[i][3],g_points[i][4],g_points[i][6],g_points[i][7],x,y)){
         console.log("está dentro en i:",i);
@@ -226,19 +243,19 @@ function click(ev, gl, canvas) {
 function draw(gl) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   for (var i = 0; i < g_points.length; i++) {
-    var n = initVertexBuffer(gl, new Float32Array(g_points[i]), new Float32Array(g_colors[i])) / 3;
+    var n = initVertexBuffer(gl, new Float32Array(g_points[i]), new Float32Array(g_colors[i]),i) / 3;
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
   }
 }
 function rightclick(ev, gl) {
-  if (g_points[index]) {
+  if (g_points[index] && scaleAxis[index] && transAxis[index] && angles[index]) {
     index++;
   }
   draw(gl);
 }
 function depthchange(ev) {
   if (ev.key == "Shift") {
-    console.log(models);
+    console.log(transAxis,scaleAxis,angles);
     z = 1;
   }
   else if (ev.key == "Control") {
@@ -258,41 +275,38 @@ function setValue(slider){
   var x =document.getElementById(transformation[0]+"_"+transformation[1]);
   if(transformation[0]=="translate" && transformation[1]=="x"){
     x.value=slider.value;
-    transAxis[0]=x.value/100;
+    transAxis[selected][0]=x.value/100;
   }
   if(transformation[0]=="translate" && transformation[1]=="y"){
     x.value=slider.value;
-    transAxis[1]=x.value/100;
+    transAxis[selected][1]=x.value/100;
   }
   if(transformation[0]=="translate" && transformation[1]=="z"){
     x.value=slider.value;
-    transAxis[2]=x.value/100;
+    transAxis[selected][2]=x.value/100;
   }
   if(transformation[0]=="rotate" && transformation[1]=="x"){
     x.value=slider.value;
-    rotAxis=[1,0,0];
-    angle=x.value;
+    angles[selected][0]=x.value;
   }
   if(transformation[0]=="rotate" && transformation[1]=="y"){
     x.value=slider.value;
-    rotAxis=[0,1,0];
-    angle=x.value;
+    angles[selected][1]=x.value;
   }
   if(transformation[0]=="rotate" && transformation[1]=="z"){
     x.value=slider.value;
-    rotAxis=[0,0,1];
-    angle=x.value;
+    angles[selected][2]=x.value;
   }
   if(transformation[0]=="scale" && transformation[1]=="x"){
     x.value=slider.value;
-    scaleAxis[0]=x.value/100;
+    scaleAxis[selected][0]=x.value/100;
   }
   if(transformation[0]=="scale" && transformation[1]=="y"){
     x.value=slider.value;
-    scaleAxis[1]=x.value/100;
+    scaleAxis[selected][1]=x.value/100;
   }
   if(transformation[0]=="scale" && transformation[1]=="z"){
     x.value=slider.value;
-    scaleAxis[2]=x.value/100;
+    scaleAxis[selected][2]=x.value/100;
   }
 }
