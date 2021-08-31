@@ -10,3 +10,5 @@ Classwork from the Advanced Computer Graphics Class
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/rotation_example.gif)
 ## Analog Clock
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/Analog%20Clock%20-%20Mozilla%20Firefox%202021-08-25%2023-20-58.gif)
+## First partial project: 3D modelling software
+![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/3d_modeling.gif)
