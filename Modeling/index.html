@@ -14,7 +14,7 @@
       <div class="col-lg button_mode" id="camera_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Camera</div>
       <div class="col-lg button_mode" id="create_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Create</div>
       <div class="col-lg button_mode" id="select_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Select</div>
-      <div class="col-lg button_mode" id="delete_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Delete</div>
+      <!--div class="col-lg button_mode" id="delete_mode" onmouseover="this.style.backgroundColor='red';" onmouseout="this.style.backgroundColor='#33b5e5'">Delete</div-->
     </div>
   </div>
   <div class="container-fluid">
@@ -27,49 +27,63 @@
       <div class="col" id="Transformations" style="display: none;">
         <table class="table table-condensed table-hover" style="font-size:11px">
           <tr>
+            <td></td>
+            <td>Figure</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <select name="figure_selection" id="figures" onchange="selectFigure(this);">
+              <option value="" selected>Please select a figure</option>
+              </select>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
             <th>Translation</th>
             <th>Rotation</th>
             <th>Scale</th>
           </tr>
           <tr>
             <td>
-              <input type="text" id="translate_x" placeholder="x:">
+              <input type="text" id="translate_x" placeholder="x:" onchange="updateInput(this);">
               <input type="range" min="1" max="100" value="50" class="slider" id="translate_x_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
-              <input type="text" id="rotate_x" placeholder="x:">
+              <input type="text" id="rotate_x" placeholder="x:" onchange="updateInput(this);">
               <input type="range" min="0" max="360" value="50" class="slider" id="rotate_x_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
-              <input type="text" id="scale_x" placeholder="x:">
+              <input type="text" id="scale_x" placeholder="x:" onchange="updateInput(this);">
               <input type="range" min="1" max="100" value="50" class="slider" id="scale_x_slider" oninput="setValue(this)" onchange="setValue(this)">  
             </td>
           </tr>
           <tr>
             <td>
-              <input type="text" id="translate_y" placeholder="y:">
+              <input type="text" id="translate_y" placeholder="y:" onchange="updateInput(this);">
               <input type="range" min="1" max="100" value="50" class="slider" id="translate_y_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
-              <input type="text" id="rotate_y" placeholder="y:">
+              <input type="text" id="rotate_y" placeholder="y:" onchange="updateInput(this);">
               <input type="range" min="0" max="360" value="50" class="slider" id="rotate_y_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
-              <input type="text" id="scale_y" placeholder="y:">
+              <input type="text" id="scale_y" placeholder="y:" onchange="updateInput(this);">
               <input type="range" min="1" max="100" value="50" class="slider" id="scale_y_slider" oninput="setValue(this)" onchange="setValue(this)">  
             </td>
           </tr>
           <tr>
             <td>
-              <input type="text" id="translate_z" placeholder="z:">
+              <input type="text" id="translate_z" placeholder="z:" onchange="updateInput(this);">
               <input type="range" min="1" max="100" value="50" class="slider" id="translate_z_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
-              <input type="text" id="rotate_z" placeholder="z:">
+              <input type="text" id="rotate_z" placeholder="z:" onchange="updateInput(this);">
               <input type="range" min="0" max="360" value="50" class="slider" id="rotate_z_slider" oninput="setValue(this)" onchange="setValue(this)">
             </td>
             <td>
-              <input type="text" id="scale_z" placeholder="z:">
+              <input type="text" id="scale_z" placeholder="z:" onchange="updateInput(this);">
               <input type="range" min="1" max="100" value="50" class="slider" id="scale_z_slider" oninput="setValue(this)" onchange="setValue(this)">   
             </td>
           </tr>
@@ -83,6 +97,11 @@
             <td>
               <input type="color" id="surface_color" value="#ff0000" onchange="hexToRgb(this.value);">
             </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><Button onclick="deleteFigure();">Delete</Button></td>
             <td></td>
           </tr>
         </table>
@@ -100,6 +119,48 @@
               <input type="color" id="surface_color" value="#ff0000" onchange="hexToRgb(this.value);">
             </td>
             <td></td>
+          </tr>
+        </table>
+      </div>
+      <div class="col" id="Camera" style="display: none;">
+        <table class="table table-condensed table-hover" style="font-size:11px">
+          <tr>
+            <td></td>
+            <th>Eye</th>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <input type="text" id="eye_x" placeholder="x:" onchange="updateInput(this);">
+              <input type="range" min="1" max="100" value="50" class="slider" id="eye_x_slider" oninput="setValue(this)" onchange="setValue(this)">
+            </td>
+            <td>
+              <input type="text" id="eye_y" placeholder="y:" onchange="updateInput(this);">
+              <input type="range" min="1" max="100" value="50" class="slider" id="eye_y_slider" oninput="setValue(this)" onchange="setValue(this)">
+            </td>
+            <td>
+              <input type="text" id="eye_z" placeholder="z:" onchange="updateInput(this);">
+              <input type="range" min="1" max="100" value="50" class="slider" id="eye_z_slider" oninput="setValue(this)" onchange="setValue(this)">
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <th>Reference</th>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <input type="text" id="center_x" placeholder="x:" onchange="updateInput(this);">
+              <input type="range" min="-100" max="100" value="0" class="slider" id="center_x_slider" oninput="setValue(this)" onchange="setValue(this)">
+            </td>
+            <td>
+              <input type="text" id="center_y" placeholder="y:" onchange="updateInput(this);">
+              <input type="range" min="-100" max="100" value="0" class="slider" id="center_y_slider" oninput="setValue(this)" onchange="setValue(this)">
+            </td>
+            <td>
+              <input type="text" id="center_z" placeholder="z:" onchange="updateInput(this);">
+              <input type="range" min="-100" max="100" value="0" class="slider" id="center_z_slider" oninput="setValue(this)" onchange="setValue(this)">
+            </td>
           </tr>
         </table>
       </div>
