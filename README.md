@@ -1,5 +1,6 @@
 # ADC-Classworks
 Classwork from the Advanced Computer Graphics Class
+# Webgl
 ## Classwork 04
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/Example%20Session%2004%2020210812%20-%20Mozilla%20Firefox%202021-08-14%2020-46-12.gif)
 ## Classwork 05
@@ -12,3 +13,6 @@ Classwork from the Advanced Computer Graphics Class
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/Analog%20Clock%20-%20Mozilla%20Firefox%202021-08-25%2023-20-58.gif)
 ## First partial project: 3D modelling software
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/3d_modeling.gif)
+# Unity Shaders
+## Transparency
+![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/transparency.gif)
