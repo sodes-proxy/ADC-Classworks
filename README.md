@@ -18,3 +18,5 @@ Classwork from the Advanced Computer Graphics Class
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/transparency.gif)
 ## Color inversion
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/inversing.gif)
+## Barycentric Extrusion
+![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/geometry_shader.gif)
