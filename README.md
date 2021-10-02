@@ -16,3 +16,5 @@ Classwork from the Advanced Computer Graphics Class
 # Unity Shaders
 ## Transparency
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/transparency.gif)
+## Color inversion
+![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/inversing.gif)
