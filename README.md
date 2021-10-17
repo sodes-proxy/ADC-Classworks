@@ -22,3 +22,5 @@ Classwork from the Advanced Computer Graphics Class
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/geometry_shader.gif)
 ## Wireframe and mirror shaders
 ![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/wireframe_mirror.gif)
+## Gerstner Wave Implementation
+![example](https://github.com/sodes-proxy/ADC-Classworks/blob/main/demos/gerstner_wave.gif)
